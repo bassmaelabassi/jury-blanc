@@ -117,13 +117,13 @@ const Dashboard = () => {
 
       <div className="flex flex-wrap gap-6 justify-center mt-6 w-full">
         {projects.map((project) => (
-          <div key={project.id} className="bg-white rounded-lg p-6 w-80 shadow-md">
+          <div key={project.id} className="bg-gray rounded-lg p-6 w-80 shadow-md">
             <h3 className="text-xl font-semibold text-gray-800 mb-4">{project.name}</h3>
             <p className="text-gray-600">{project.description}</p>
             <p className="text-gray-600">Date de début: {project.startDate}</p>
             <p className="text-gray-600">Date de fin: {project.endDate}</p>
             <p className="text-gray-600">Budget: {project.budget} €</p>
-            <Link to={`/projects/${project.id}`} className="text-green-500 font-semibold mt-4 block hover:text-green-600">
+            <Link to={`/projects/${project.id}`} className="text-bg-yellow-500 font-semibold mt-4 block hover:text-yellow-200">
               Voir les détails
             </Link>
           </div>
