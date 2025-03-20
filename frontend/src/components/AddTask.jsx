@@ -1,17 +1,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { addTask } from '../utils/Project.api';
-
-const schema = yup.object().shape({
-  title: yup.string().min(3).required('Le titre est requis'),
-  description: yup.string().min(10).required('La description est requise'),
-  assignee: yup.string().optional(),
-  startDate: yup.date().required('La date de début est requise'),
-  endDate: yup.date().min(yup.ref('startDate'), 'La date de fin doit être après la date de début').required('La date de fin est requise'),
-  status: yup.string().oneOf(['Pending', 'InProgress', 'Completed'], 'Statut invalide').required('Le statut est requis'),
-});
 
 const AddTask = ({ projectId, onTaskAdded }) => {
   const [loading, setLoading] = useState(false);
