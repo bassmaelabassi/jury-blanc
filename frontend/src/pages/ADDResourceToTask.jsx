@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import axios from "axios"; // استيراد Axios
 
 const AddResourceToTask = () => {
   const { projectId, taskId } = useParams();
@@ -23,8 +24,19 @@ const AddResourceToTask = () => {
       supplier: "",
     },
     validationSchema,
-    onSubmit: (values) => {
-      console.log("Resource form submitted:", values);
+    onSubmit: async (values, { resetForm }) => {
+      try {
+        const response = await axios.post(
+          `http://localhost:7000/api/projects/${projectId}/tasks/${taskId}/resources`,
+          values
+        );
+        console.log("Resource added successfully:", response.data);
+        alert("Resource added successfully!");
+        resetForm();
+      } catch (error) {
+        console.error("Error adding resource:", error.response?.data || error.message);
+        alert("Failed to add resource. Please try again.");
+      }
     },
   });
 
