@@ -1,90 +1,37 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 const Home = () => {
   const [showFloatingButton, setShowFloatingButton] = useState(false);
   const [projects, setProjects] = useState([]);
 
-  // Test data for projects
-  const testProjects = [
-    {
-      _id: "1",
-      name: "Residential Tower",
-      description:
-        "Construction of a 20-story residential tower with modern amenities and eco-friendly features.",
-      startDate: "2023-10-01",
-      endDate: "2025-06-30",
-      budget: 12000000,
-    },
-    {
-      _id: "2",
-      name: "Shopping Mall",
-      description:
-        "Development of a large shopping mall with retail spaces, food courts, and entertainment zones.",
-      startDate: "2023-11-15",
-      endDate: "2024-12-31",
-      budget: 8500000,
-    },
-    {
-      _id: "3",
-      name: "Office Complex",
-      description:
-        "Construction of a state-of-the-art office complex with smart building technologies.",
-      startDate: "2024-01-01",
-      endDate: "2025-09-30",
-      budget: 9500000,
-    },
-    {
-      _id: "4",
-      name: "Hospital Expansion",
-      description:
-        "Expansion of the city hospital to include a new wing with advanced medical facilities.",
-      startDate: "2023-12-01",
-      endDate: "2025-03-31",
-      budget: 15000000,
-    },
-    {
-      _id: "5",
-      name: "School Renovation",
-      description:
-        "Renovation and modernization of an old school building to improve infrastructure and safety.",
-      startDate: "2024-02-01",
-      endDate: "2024-08-31",
-      budget: 3000000,
-    },
-    {
-      _id: "6",
-      name: "Bridge Construction",
-      description:
-        "Construction of a new bridge to connect two major highways and ease traffic congestion.",
-      startDate: "2024-03-01",
-      endDate: "2025-12-31",
-      budget: 25000000,
-    },
-  ];
-
   useEffect(() => {
-    setProjects(testProjects);
+    const fetchProjects = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/projects");
+        setProjects(response.data);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
+
+    fetchProjects();
   }, []);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 200) {
-        setShowFloatingButton(true);
-      } else {
-        setShowFloatingButton(false);
-      }
+      setShowFloatingButton(window.scrollY > 200);
     };
 
     window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this project?")) {
       try {
+        await axios.delete(`http://localhost:7000/api/projects/${id}`);
         setProjects(projects.filter((project) => project._id !== id));
       } catch (error) {
         console.error("Error deleting project:", error);
@@ -151,12 +98,12 @@ const Home = () => {
                 <div className="flex space-x-3">
                   <Link
                     to={`/project/${project._id}/edit-project`}
-                    className="flex-1 bg-amber-500 text-white px-10  rounded-lg hover:bg-amber-300  border-amber-200"
+                    className="flex-1 bg-amber-500 text-white px-10 rounded-lg hover:bg-amber-300 border-amber-200"
                   >
                     Edit
                   </Link>
                   <button
-                    className="flex-1 bg-red-500 text-white rounded-lg hover:bg-red-400 t border-red-500"
+                    className="flex-1 bg-red-500 text-white rounded-lg hover:bg-red-400 border-red-500"
                     onClick={() => handleDelete(project._id)}
                   >
                     Delete

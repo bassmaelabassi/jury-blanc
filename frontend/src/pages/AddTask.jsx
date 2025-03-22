@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useEffect } from "react";
+import axios from "axios";
 
 const AddTask = () => {
   const { projectId } = useParams();
@@ -34,8 +35,17 @@ const AddTask = () => {
       resources: "",
     },
     validationSchema,
-    onSubmit: (values) => {
-      console.log("Task form submitted:", values);
+    onSubmit: async (values, { setSubmitting, resetForm }) => {
+      try {
+        const response = await axios.post(`http://localhost:7000/api/projects/${projectId}/tasks`, values);
+        console.log("Task added successfully:", response.data);
+        resetForm();
+        navigate(`/project/${projectId}/tasks`);
+      } catch (error) {
+        console.error("Error adding task:", error.response ? error.response.data : error.message);
+      } finally {
+        setSubmitting(false);
+      }
     },
   });
 
@@ -140,8 +150,9 @@ const AddTask = () => {
                 <button
                   type="submit"
                   className="px-6 py-3 bg-amber-400 text-white rounded-lg hover:bg-amber-500"
+                  disabled={formik.isSubmitting}
                 >
-                  Save Task
+                  {formik.isSubmitting ? "Saving..." : "Save Task"}
                 </button>
               </div>
             </div>

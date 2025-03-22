@@ -1,18 +1,14 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import axios from "axios";
 
 const EditTask = () => {
   const { projectId, taskId } = useParams();
   const navigate = useNavigate();
-
-  const taskData = {
-    id: taskId,
-    name: "Task 1",
-    description: "Description of Task 1",
-    startDate: "2025-05-01",
-    endDate: "2025-06-01",
-  };
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const validationSchema = Yup.object({
     name: Yup.string().required("Task name is required"),
@@ -24,18 +20,48 @@ const EditTask = () => {
   });
 
   const formik = useFormik({
-    initialValues: taskData,
+    initialValues: {
+      name: "",
+      description: "",
+      startDate: "",
+      endDate: "",
+    },
     validationSchema,
-    onSubmit: (values) => {
-      console.log("Updated task:", values);
+    onSubmit: async (values) => {
+      try {
+        await axios.put(`http://localhost:7000/api/projects/${projectId}/tasks/${taskId}`, values);
+        navigate(`/project/${projectId}/tasks`);
+      } catch (err) {
+        console.error("Error updating task:", err);
+        setError("Failed to update task. Please try again.");
+      }
     },
   });
 
+  useEffect(() => {
+    const fetchTask = async () => {
+      try {
+        const response = await axios.get(`http://localhost:7000/api/projects/${projectId}/tasks/${taskId}`);
+        formik.setValues(response.data);
+      } catch (err) {
+        console.error("Error fetching task:", err);
+        setError("Failed to load task. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTask();
+  }, [projectId, taskId]);
+
+  if (loading) return <div className="text-center text-lg">Loading...</div>;
+  if (error) return <div className="text-center text-red-500">{error}</div>;
+
   return (
     <div className="min-h-screen bg-gray-100 pt-20 pb-10 px-4">
-    <div className="max-w-3xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="bg-gray-700 p-6 text-white">
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="bg-gray-700 p-6 text-white">
             <h2 className="text-2xl font-bold">Edit Task</h2>
           </div>
 
@@ -49,7 +75,7 @@ const EditTask = () => {
                   value={formik.values.name}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  className="w-full pl-4 py-3 border border-gray-300 "
+                  className="w-full pl-4 py-3 border border-gray-300"
                   placeholder="Enter task name"
                 />
                 {formik.touched.name && formik.errors.name && (
@@ -107,21 +133,22 @@ const EditTask = () => {
 
             <div className="mt-8 flex flex-col md:flex-row md:justify-between space-y-4 md:space-y-0">
               <button
+                type="button"
                 onClick={() => navigate(`/project/${projectId}/tasks`)}
-                className="px-6 py-3 bg-amber-400 text-white rounded-lg hover:bg-amber-500"
+                className="px-6 py-3 bg-gray-400 text-white rounded-lg hover:bg-gray-500"
               >
                 Back to Tasks
               </button>
 
-              <div className="flex space-x-4">
-                <button
-                  type="submit"
-                  className="px-6 py-3 bg-amber-400 text-white rounded-lg hover:bg-amber-500"
-                >
-                  Save Changes
-                </button>
-              </div>
+              <button
+                type="submit"
+                className="px-6 py-3 bg-amber-400 text-white rounded-lg hover:bg-amber-500"
+              >
+                Save Changes
+              </button>
             </div>
+
+            {error && <div className="text-center text-red-500 mt-4">{error}</div>}
           </form>
         </div>
       </div>
