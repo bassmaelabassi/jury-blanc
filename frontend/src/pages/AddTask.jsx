@@ -37,7 +37,7 @@ const AddTask = () => {
     validationSchema,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
-        const response = await axios.post(`http://localhost:7000/api/projects/${projectId}/tasks`, values);
+        const response = await axios.post(`http://localhost:6000/api/projects/${projectId}/tasks`, values);
         console.log("Task added successfully:", response.data);
         resetForm();
         navigate(`/project/${projectId}/tasks`);

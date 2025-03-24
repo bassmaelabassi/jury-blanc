@@ -13,10 +13,10 @@ const TaskResources = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const taskResponse = await axios.get(`http://localhost:7000/api/projects/${projectId}/tasks/${taskId}`)
+        const taskResponse = await axios.get(`http://localhost:6000/api/projects/${projectId}/tasks/${taskId}`)
         setTask(taskResponse.data)
 
-        const resourcesResponse = await axios.get(`http://localhost:7000/api/projects/${projectId}/tasks/${taskId}/resources`)
+        const resourcesResponse = await axios.get(`http://localhost:6000/api/projects/${projectId}/tasks/${taskId}/resources`)
         setResources(resourcesResponse.data)
       } catch (err) {
         setError("Failed to load data")
@@ -75,7 +75,7 @@ const TaskResources = () => {
                   onClick={async () => {
                     if (confirm(`Are you sure you want to delete "${resource.name}"?`)) {
                       try {
-                        await axios.delete(`http://localhost:7000/api/projects/${projectId}/tasks/${taskId}/resources/${resource.id}`)
+                        await axios.delete(`http://localhost:6000/api/projects/${projectId}/tasks/${taskId}/resources/${resource.id}`)
                         setResources(resources.filter((res) => res.id !== resource.id))
                       } catch (err) {
                         alert("Failed to delete resource")

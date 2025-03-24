@@ -19,11 +19,11 @@ const Tasks = () => {
   }, []);
 
   useEffect(() => {
-    axios.get(`http://localhost:7000/api/projects/${projectId}`)
+    axios.get(`http://localhost:6000/api/projects/${projectId}`)
       .then((res) => setProject(res.data))
       .catch((err) => console.error("Error fetching project:", err));
 
-    axios.get(`http://localhost:7000/api/projects/${projectId}/tasks`)
+    axios.get(`http://localhost:6000/api/projects/${projectId}/tasks`)
       .then((res) => setTasks(res.data))
       .catch((err) => console.error("Error fetching tasks:", err));
   }, [projectId]);
