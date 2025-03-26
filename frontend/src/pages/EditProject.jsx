@@ -12,7 +12,7 @@ const EditProject = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await axios.get(`http://localhost:6000/api/projects/${projectId}`);
+        const response = await axios.get(`http://localhost:9000/api/projects/${projectId}`);
         setProject(response.data);
       } catch (error) {
         console.error("Error fetching project:", error);
@@ -47,7 +47,7 @@ const EditProject = () => {
     enableReinitialize: true,
     onSubmit: async (values) => {
       try {
-        await axios.put(`http://localhost:6000/api/projects/${projectId}`, values);
+        await axios.put(`http://localhost:9000/api/projects/${projectId}`, values);
         navigate("/");
       } catch (error) {
         console.error("Error updating project:", error);

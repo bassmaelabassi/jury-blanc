@@ -1,25 +1,20 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useParams } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useEffect } from "react";
 import axios from "axios";
+
 
 const AddTask = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!projectId) {
-      console.error("Project ID is missing! Redirecting...");
-      navigate("/");
-    }
-  }, [projectId, navigate]);
-
   const validationSchema = Yup.object({
     name: Yup.string().required("Task name is required"),
     description: Yup.string().required("Description is required"),
-    startDate: Yup.date().required("Start date is required"),
+    startDate: Yup.date()
+      .required("Start date is required")
+      .min(new Date(), "Start date cannot be in the past"),
     endDate: Yup.date()
       .required("End date is required")
       .min(Yup.ref("startDate"), "End date must be after start date"),
@@ -35,14 +30,34 @@ const AddTask = () => {
       resources: "",
     },
     validationSchema,
-    onSubmit: async (values, { setSubmitting, resetForm }) => {
+    onSubmit: async (values, { setSubmitting, setErrors }) => {
       try {
-        const response = await axios.post(`http://localhost:6000/api/projects/${projectId}/tasks`, values);
-        console.log("Task added successfully:", response.data);
-        resetForm();
-        navigate(`/project/${projectId}/tasks`);
+        const payload = {
+          ...values,
+          projectId: projectId,
+          startDate: new Date(values.startDate),
+          endDate: new Date(values.endDate)
+        };
+
+        const response = await axios.post(
+          "http://localhost:9000/api/tasks",
+          payload
+        );
+
+        if (response.status === 201) {
+          navigate(`/project/${projectId}/tasks`);
+        }
       } catch (error) {
-        console.error("Error adding task:", error.response ? error.response.data : error.message);
+        console.error("Task creation error:", error);
+        if (error.response?.data?.errors) {
+          const serverErrors = {};
+          Object.keys(error.response.data.errors).forEach(key => {
+            serverErrors[key] = error.response.data.errors[key].message;
+          });
+          setErrors(serverErrors);
+        } else {
+          alert(error.response?.data?.message || "Failed to create task");
+        }
       } finally {
         setSubmitting(false);
       }
@@ -162,5 +177,4 @@ const AddTask = () => {
     </div>
   );
 };
-
 export default AddTask;

@@ -9,7 +9,7 @@ const Home = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get("http://localhost:6000/api/projects");
+        const response = await axios.get("http://localhost:9000/api/projects");
         setProjects(response.data);
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -31,7 +31,7 @@ const Home = () => {
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this project?")) {
       try {
-        await axios.delete(`http://localhost:6000/api/projects/${id}`);
+        await axios.delete(`http://localhost:9000/api/projects/${id}`);
         setProjects(projects.filter((project) => project._id !== id));
       } catch (error) {
         console.error("Error deleting project:", error);

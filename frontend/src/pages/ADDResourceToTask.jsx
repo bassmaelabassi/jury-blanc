@@ -1,129 +1,102 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 
-const AddResourceToTask = () => {
-  const { projectId, taskId } = useParams();
+const AddProject = () => {
+  const { projectId, taskId } = useParams()
+  const navigate = useNavigate();
 
   const validationSchema = Yup.object({
-    name: Yup.string().required("Resource name is required"),
-    type: Yup.string().required("Resource type is required"),
+    title: Yup.string().required("resource title is required"),
+    type: Yup.string().required("type is required"),
+    description: Yup.string().required("description is required"),
+    supplier: Yup.string().required("supplier is required"),
     quantity: Yup.number()
-      .typeError("Quantity must be a number")
-      .required("Quantity is required")
-      .positive("Quantity must be positive"),
-    supplier: Yup.string().required("Supplier is required"),
+      .typeError("Budget must be a number")
+      .required("Budget is required")
+      .positive("Budget must be positive"),
   });
 
   const formik = useFormik({
     initialValues: {
-      name: "",
+      title: "",
       type: "",
       quantity: "",
+      description: "",
       supplier: "",
     },
     validationSchema,
-    onSubmit: async (values, { resetForm }) => {
+    onSubmit: async (values) => {
       try {
-        const response = await axios.post(
-          `http://localhost:6000/api/projects/${projectId}/tasks/${taskId}/resources`,
-          values
-        );
-        console.log("Resource added successfully:", response.data);
-        alert("Resource added successfully!");
-        resetForm();
+
+        const payload = {
+          ...values,
+          taskId: taskId,
+        };
+        
+        await axios.post("http://localhost:9000/api/resources", payload);
+        navigate(`/project/${projectId}/task/${taskId}/resources`);
       } catch (error) {
-        console.error("Error adding resource:", error.response?.data || error.message);
-        alert("Failed to add resource. Please try again.");
+        console.error("Error creating project:", error);
       }
     },
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 pt-20 pb-10 px-4">
-      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
-        <h2 className="text-2xl font-bold text-gray-700 mb-4">Add Resource to Task</h2>
+    <div className="min-h-screen bg-gray-100 pt-20 pb-10 px-4">
+      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-6">
+        <h2 className="text-2xl font-bold mb-4 text-gray-700">Create New resource</h2>
         <form onSubmit={formik.handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-gray-700 font-medium">Resource Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formik.values.name}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-amber-400 focus:border-amber-400"
-              placeholder="Enter resource name"
-            />
-            {formik.touched.name && formik.errors.name && (
-              <div className="text-red-500 text-sm">{formik.errors.name}</div>
-            )}
-          </div>
+          {[ 
+            { label: "Title", name: "title", type: "text" },
+            { label: "Type", name: "type", type: "text" },
+            { label: "Quantity", name: "quantity", type: "number" },
+            { label: "Description", name: "description", type: "textarea" },
+            { label: "supplier", name: "supplier", type: "text" },
+          ].map(({ label, name, type }) => (
+            <div key={name}>
+              <label className="block text-gray-700 font-medium mb-1">{label}</label>
+              {type === "textarea" ? (
+                <textarea
+                  name="description"
+                  value={formik.values.description}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700"
+                  placeholder={`Enter ${label.toLowerCase()}`}
+                />
+              ) : (
+                <input
+                  type={type}
+                  name={name}
+                  value={formik.values[name]}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700"
+                  placeholder={`Enter ${label.toLowerCase()}`}
+                />
+              )}
+              {formik.touched[name] && formik.errors[name] && (
+                <p className="text-red-500 text-sm mt-1">{formik.errors[name]}</p>
+              )}
+            </div>
+          ))}
 
-          <div>
-            <label className="block text-gray-700 font-medium">Resource Type</label>
-            <input
-              type="text"
-              name="type"
-              value={formik.values.type}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-amber-400 focus:border-amber-400"
-              placeholder="Enter resource type"
-            />
-            {formik.touched.type && formik.errors.type && (
-              <div className="text-red-500 text-sm">{formik.errors.type}</div>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-medium">Quantity</label>
-            <input
-              type="number"
-              name="quantity"
-              value={formik.values.quantity}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-amber-400 focus:border-amber-400"
-              placeholder="Enter quantity"
-              min="0"
-              step="0.01"
-            />
-            {formik.touched.quantity && formik.errors.quantity && (
-              <div className="text-red-500 text-sm">{formik.errors.quantity}</div>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-medium">Supplier</label>
-            <input
-              type="text"
-              name="supplier"
-              value={formik.values.supplier}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-amber-400 focus:border-amber-400"
-              placeholder="Enter supplier name"
-            />
-            {formik.touched.supplier && formik.errors.supplier && (
-              <div className="text-red-500 text-sm">{formik.errors.supplier}</div>
-            )}
-          </div>
-
-          <div className="flex justify-between mt-6">
-            <button
-              type="button"
-              onClick={() => window.history.back()}
-              className="px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-400"
-            >
-              Back to Resources
-            </button>
+          <div className="flex justify-between mt-4">
+            <Link to={`/project/${projectId}/task/${taskId}/resources`}>
+              <button
+                type="button"
+                className="px-6 py-2 bg-amber-400 text-gray-700 rounded-lg hover:bg-amber-200"
+              >
+                Back to tasks
+              </button>
+            </Link>
             <button
               type="submit"
-              className="px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-400"
+              className="px-6 py-2 bg-amber-400 text-gray-700 rounded-lg hover:bg-amber-200"
             >
-              Add Resource
+              Save Resource
             </button>
           </div>
         </form>
@@ -132,4 +105,4 @@ const AddResourceToTask = () => {
   );
 };
 
-export default AddResourceToTask;
+export default AddProject;

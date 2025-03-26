@@ -10,37 +10,26 @@ const EditResource = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    axios
-      .get(`/api/projects/${projectId}/tasks/${taskId}/resources/${resourceId}`)
-      .then((response) => {
-        formik.setValues(response.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError("Failed to fetch resource data");
-        setLoading(false);
-      });
-  }, [projectId, taskId, resourceId]);
-
   const validationSchema = Yup.object({
-    name: Yup.string().required("Resource name is required"),
+    title: Yup.string().required("Resource name is required"),
     type: Yup.string().required("Resource type is required"),
     quantity: Yup.string().required("Quantity is required"),
-    fournisseur: Yup.string().required("Supplier is required"),
+    description: Yup.string().required("Description is required"),
+    supplier: Yup.string().required("Supplier is required"),
   });
 
   const formik = useFormik({
     initialValues: {
-      name: "",
+      title: "",
       type: "",
       quantity: "",
-      fournisseur: "",
+      description: "",
+      supplier: "",
     },
     validationSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       axios
-        .put(`/api/projects/${projectId}/tasks/${taskId}/resources/${resourceId}`, values)
+        .put(`http://localhost:9000/api/resources/${resourceId}`, values)
         .then(() => {
           navigate(`/project/${projectId}/task/${taskId}/resources`);
         })
@@ -49,6 +38,22 @@ const EditResource = () => {
         });
     },
   });
+
+  useEffect(() => {
+    const fetchResource = async () => {
+      try {
+        const response = await axios.get(`http://localhost:9000/api/resources/${resourceId}`);
+        formik.setValues(response.data);
+      } catch (err) {
+        console.error("Error fetching resource:", err);
+        setError("Failed to load resource. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResource();
+  }, [projectId, taskId, resourceId]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
@@ -62,23 +67,77 @@ const EditResource = () => {
           </div>
           <form onSubmit={formik.handleSubmit} className="p-6 md:p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {Object.keys(formik.values).map((field) => (
-                <div key={field}>
-                  <label className="block text-gray-700 font-medium mb-2 capitalize">{field}</label>
-                  <input
-                    type="text"
-                    name={field}
-                    value={formik.values[field]}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-700 transition-all"
-                    placeholder={`Enter ${field}`}
-                  />
-                  {formik.touched[field] && formik.errors[field] && (
-                    <div className="text-red-500 text-sm mt-1">{formik.errors[field]}</div>
-                  )}
-                </div>
-              ))}
+            <div>
+                <label className="block text-gray-700 font-medium mb-2">Resource title</label>
+                <input
+                  type="text"
+                  name="title"
+                  value={formik.values.title}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="w-full pl-4 py-3 border border-gray-300"
+                  placeholder="Enter Resource title"
+                />
+                {formik.touched.title && formik.errors.title && (
+                  <div className="text-red-500 text-sm mt-1">{formik.errors.title}</div>
+                )}
+
+                <label className="block text-gray-700 font-medium mb-2">type</label>
+                <input
+                  type="text"
+                  name="type"
+                  value={formik.values.type}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="w-full pl-4 py-3 border border-gray-300"
+                  placeholder="Enter resource type"
+                />
+                {formik.touched.type && formik.errors.type && (
+                  <div className="text-red-500 text-sm mt-1">{formik.errors.type}</div>
+                )}
+
+                <label className="block text-gray-700 font-medium mb-2">quantity</label>
+                <input
+                  type="text"
+                  name="quantity"
+                  value={formik.values.quantity}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="w-full pl-4 py-3 border border-gray-300"
+                  placeholder="Enter resource quantity"
+                />
+                {formik.touched.quantity && formik.errors.quantity && (
+                  <div className="text-red-500 text-sm mt-1">{formik.errors.quantity}</div>
+                )}
+
+                <label className="block text-gray-700 font-medium mb-2">Description</label>
+                <input
+                  type="text"
+                  name="description"
+                  value={formik.values.description}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="w-full pl-4 py-3 border border-gray-300"
+                  placeholder="Enter resource description"
+                />
+                {formik.touched.description && formik.errors.description && (
+                  <div className="text-red-500 text-sm mt-1">{formik.errors.description}</div>
+                )}
+
+                <label className="block text-gray-700 font-medium mb-2">Supplier</label>
+                <input
+                  type="text"
+                  name="supplier"
+                  value={formik.values.supplier}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="w-full pl-4 py-3 border border-gray-300"
+                  placeholder="Enter resource supplier"
+                />
+                {formik.touched.supplier && formik.errors.supplier && (
+                  <div className="text-red-500 text-sm mt-1">{formik.errors.supplier}</div>
+                )}
+              </div>
             </div>
             <div className="mt-8 flex flex-col md:flex-row md:justify-between space-y-4 md:space-y-0">
               <button

@@ -13,10 +13,10 @@ const TaskResources = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const taskResponse = await axios.get(`http://localhost:6000/api/projects/${projectId}/tasks/${taskId}`)
+        const taskResponse = await axios.get(`http://localhost:9000/api/tasks/project/${projectId}`)
         setTask(taskResponse.data)
 
-        const resourcesResponse = await axios.get(`http://localhost:6000/api/projects/${projectId}/tasks/${taskId}/resources`)
+        const resourcesResponse = await axios.get(`http://localhost:9000/api/resources/task/${taskId}`)
         setResources(resourcesResponse.data)
       } catch (err) {
         setError("Failed to load data")
@@ -44,7 +44,7 @@ const TaskResources = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6 border border-gray-200">
           <div className="bg-gradient-to-r from-gray-900 to-gray-900 p-4 sm:p-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">Task Resources: {task.name}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Task name: {task.name}</h1>
             <p className="text-teal-100 mt-1">{task.description}</p>
           </div>
         </div>
@@ -60,32 +60,30 @@ const TaskResources = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {resources.map((resource) => (
-            <div key={resource.id} className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
+            <div key={resource._id} className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
               <div className="p-4 border-b border-gray-100">
-                <h3 className="font-bold text-gray-800 text-lg">{resource.name}</h3>
-                <div className="text-sm text-gray-600">Quantity: {resource.quantity}</div>
+                <h3 className="font-bold text-gray-800 text-lg">{resource.title}</h3>
                 <div className="text-sm text-gray-600">Type: {resource.type}</div>
+                <div className="text-sm text-gray-600">Quantity: {resource.quantity}</div>
+                <div className="text-sm text-gray-600">Description: {resource.description}</div>
                 <div className="text-sm text-gray-600">Supplier: {resource.supplier}</div>
               </div>
               <div className="px-4 py-3 bg-gray-50 flex justify-end space-x-2">
-                <Link to={`/project/${projectId}/task/${taskId}/edit-resource/${resource.id}`} className="text-sm bg-amber-50 text-amber-600 px-3 py-1.5 rounded-lg hover:bg-amber-100 transition-colors border border-amber-200">
+                <Link to={`/project/${projectId}/task/${taskId}/edit-resource/${resource._id}`} className="text-sm bg-amber-50 text-amber-600 px-3 py-1.5 rounded-lg hover:bg-amber-100 transition-colors border border-amber-200">
                   Edit
                 </Link>
                 <button
-                  onClick={async () => {
-                    if (confirm(`Are you sure you want to delete "${resource.name}"?`)) {
-                      try {
-                        await axios.delete(`http://localhost:6000/api/projects/${projectId}/tasks/${taskId}/resources/${resource.id}`)
-                        setResources(resources.filter((res) => res.id !== resource.id))
-                      } catch (err) {
-                        alert("Failed to delete resource")
-                      }
-                    }
-                  }}
-                  className="text-sm bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors border border-red-200"
-                >
-                  Delete
-                </button>
+                        onClick={() => {
+                          if (confirm(`Are you sure you want to delete "${resource.title}"?`)) {
+                            axios.delete(`http://localhost:9000/api/resources/${resource._id}`)
+                              .then(() => setResources(resources.filter(r => r._id !== resource._id)))
+                              .catch(err => console.error("Error deleting task:", err));
+                          }
+                        }}
+                        className="text-sm bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors flex items-center border border-red-200"
+                      >
+                        Delete
+                      </button>
               </div>
             </div>
           ))}

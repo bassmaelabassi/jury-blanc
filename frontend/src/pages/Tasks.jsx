@@ -19,11 +19,11 @@ const Tasks = () => {
   }, []);
 
   useEffect(() => {
-    axios.get(`http://localhost:6000/api/projects/${projectId}`)
+    axios.get(`http://localhost:9000/api/projects/${projectId}`)
       .then((res) => setProject(res.data))
       .catch((err) => console.error("Error fetching project:", err));
 
-    axios.get(`http://localhost:6000/api/projects/${projectId}/tasks`)
+    axios.get(`http://localhost:9000/api/tasks/project/${projectId}`)
       .then((res) => setTasks(res.data))
       .catch((err) => console.error("Error fetching tasks:", err));
   }, [projectId]);
@@ -111,7 +111,7 @@ const Tasks = () => {
                       <button
                         onClick={() => {
                           if (confirm(`Are you sure you want to delete "${task.name}"?`)) {
-                            axios.delete(`http://localhost:7000/api/projects/${projectId}/tasks/${task._id}`)
+                            axios.delete(`http://localhost:9000/api/tasks/${task._id}`)
                               .then(() => setTasks(tasks.filter(t => t._id !== task._id)))
                               .catch(err => console.error("Error deleting task:", err));
                           }

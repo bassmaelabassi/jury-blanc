@@ -29,7 +29,13 @@ const EditTask = () => {
     validationSchema,
     onSubmit: async (values) => {
       try {
-        await axios.put(`http://localhost:6000/api/projects/${projectId}/tasks/${taskId}`, values);
+        const updatedData = {
+          ...values,
+          startDate: new Date(values.startDate).toISOString(),
+          endDate: new Date(values.endDate).toISOString(),
+        }
+        const response = await axios.put(`http://localhost:9000/api/tasks/${taskId}`, updatedData);
+        console.log('updated:', response.data)
         navigate(`/project/${projectId}/tasks`);
       } catch (err) {
         console.error("Error updating task:", err);
@@ -41,7 +47,7 @@ const EditTask = () => {
   useEffect(() => {
     const fetchTask = async () => {
       try {
-        const response = await axios.get(`http://localhost:6000/api/projects/${projectId}/tasks/${taskId}`);
+        const response = await axios.get(`http://localhost:9000/api/tasks/${taskId}`);
         formik.setValues(response.data);
       } catch (err) {
         console.error("Error fetching task:", err);

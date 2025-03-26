@@ -19,7 +19,7 @@ const App = () => {
         <main className="p-4">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/project/:id/tasks" element={<Tasks />} /> 
+            <Route path="/project/:projectId/tasks" element={<Tasks />} /> 
             <Route path="/add-project" element={<AddProject />} />
             <Route path="/project/:projectId/add-task" element={<AddTask />} />
             <Route path="/project/:projectId/task/:taskId/resources" element={<TaskResources />} />

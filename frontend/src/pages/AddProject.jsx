@@ -30,7 +30,7 @@ const AddProject = () => {
     validationSchema,
     onSubmit: async (values) => {
       try {
-        await axios.post("http://localhost:6000/api/projects", values);
+        await axios.post("http://localhost:9000/api/projects", values);
         navigate("/");
       } catch (error) {
         console.error("Error creating project:", error);

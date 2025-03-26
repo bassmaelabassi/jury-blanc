@@ -1,68 +1,76 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const TaskSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  description: { type: String, required: true },
-  startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
-  projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
+const taskSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  startDate: {
+    type: Date,
+    required: true
+  },
+  endDate: {
+    type: Date,
+    required: true,
+  },
+  resources: {
+    type: String,
+    required: true
+  },
+  projectId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Project", 
+    required: true 
+  },
 });
 
-TaskSchema.statics.createTask = async function (data) {
+taskSchema.statics.createTask = async function(taskData) {
   try {
-    const task = new this(data);
+    const task = new this(taskData);
     await task.save();
     return task;
   } catch (error) {
-    throw new Error(error.message);
+    throw error;
   }
 };
 
-TaskSchema.statics.getTasksByProject = async function (projectId) {
+taskSchema.statics.getTasksByProject = async function(projectId) {
   try {
-    return await this.find({ projectId });
+    return await this.find({ projectId }).exec();
   } catch (error) {
-    throw new Error(error.message);
+    throw error;
   }
 };
 
-TaskSchema.statics.getTaskById = async function (id) {
+taskSchema.statics.getTaskById = async function(taskId) {
   try {
-    const task = await this.findById(id);
-    if (!task) {
-      throw new Error('Task not found');
-    }
-    return task;
+    return await this.findById(taskId).exec();
   } catch (error) {
-    throw new Error(error.message);
+    throw error;
   }
 };
 
-TaskSchema.statics.updateTask = async function (id, data) {
+taskSchema.statics.updateTask = async function(taskId, updateData) {
   try {
-    const task = await this.findByIdAndUpdate(id, data, {
+    return await this.findByIdAndUpdate(taskId, updateData, { 
       new: true,
-      runValidators: true,
-    });
-    if (!task) {
-      throw new Error('Task not found');
-    }
-    return task;
+      runValidators: true 
+    }).exec();
   } catch (error) {
-    throw new Error(error.message);
+    throw error;
   }
 };
 
-TaskSchema.statics.deleteTask = async function (id) {
+taskSchema.statics.deleteTask = async function(taskId) {
   try {
-    const task = await this.findByIdAndDelete(id);
-    if (!task) {
-      throw new Error('Task not found');
-    }
-    return task;
+    return await this.findByIdAndDelete(taskId).exec();
   } catch (error) {
-    throw new Error(error.message);
+    throw error;
   }
 };
 
-module.exports = mongoose.model('Task', TaskSchema);
+module.exports = mongoose.model("Task", taskSchema);
